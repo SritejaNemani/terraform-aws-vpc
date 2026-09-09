@@ -12,20 +12,19 @@ resource "aws_internet_gateway" "main" {
   tags = local.igw_final_tags
 }
 
-# #Public Subnets
-# resource "aws_subnet" "public" {
-#   count = length(var.public_subnet_cidrs)
-#   vpc_id     = aws_vpc.main.id
-#   cidr_block = var.public_subnet_cidrs[count.index]
-#   availability_zone = "us-east-1a"
+#Public Subnets
+resource "aws_subnet" "public" {
+  count = length(var.public_subnet_cidrs)
+  vpc_id     = aws_vpc.main.id
+  cidr_block = var.public_subnet_cidrs[count.index]
+  availability_zone = local.az_names[count.index]
+  map_public_ip_on_launch = true                        # default is false - but this is a Public subnet so we need Public IP
+  tags = merge(
+        local.common_tags,
+        var.public_subnet_tags,
+        {
+          Name = "${var.project}-${var.environment}-public-${local.az_names[count.index]}"
+        }
+    )
+}
 
-#   tags = local.public_subnet_final_tags
-# }
-
-# resource "aws_subnet" "public" {
-#   vpc_id     = aws_vpc.main.id
-#   cidr_block = var.public_subnet_cidrs
-#   availability_zone = "us-east-1a"
-
-#   tags = local.public_subnet_final_tags
-# }
